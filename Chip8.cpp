@@ -305,10 +305,26 @@ void Chip8::EmulateCycle()
                 pc += 2;
                 break;
                 
-            case 0x000A: // 0xFX0A: A key press is awaited, and then stored in VX.
-                 if (key[V[(opcode & 0x000F)]] == 0)
-                pc += 2;
-                break;
+            case 0x000A: {// 0xFX0A: A key press is awaited, and then stored in VX.
+            
+                bool keyPress = false;
+                
+                for(int i = 0; i < 16; ++i)
+                {
+                    if(key[i] != 0)
+                    {
+                        V[(opcode & 0x0F00) >> 8] = i;
+                        keyPress = true;
+                    }
+                }
+                
+                // If we didn't received a keypress, skip this cycle and try again.
+                if(!keyPress)						
+                    return;
+                
+                pc += 2;					
+            
+            }break;
                 
             case 0x0008: // 0xFX18: Sets the sound timer to VX.
                 sound_timer = V[(opcode & 0x0F00) >> 8];
@@ -380,10 +396,6 @@ void Chip8::SetKeys()
             window.close();
         }
         
-        for ( int i = 0; i < 0xF; ++i )
-            key[i] = 0;
-        
-        // Escape pressed: exit
         if (event.type == sf::Event::KeyPressed )
         {
             switch ( event.key.code )
@@ -393,52 +405,111 @@ void Chip8::SetKeys()
                     window.close();
                     break;
                 case sf::Keyboard::Num1:
-                    key[0] = 1;
+                    key[0x1] = 1;
                     break;
                 case sf::Keyboard::Num2:
-                    key[1] = 1;
+                    key[0x2] = 1;
                     break;
                 case sf::Keyboard::Num3:
-                    key[2] = 1;
+                    key[0x3] = 1;
                     break;
                 case sf::Keyboard::Num4:
-                    key[3] = 1;
+                    key[0xC] = 1;
                     break;
                 case sf::Keyboard::Q:
-                    key[4] = 1;
+                    key[0x4] = 1;
                     break;
                 case sf::Keyboard::W:
-                    key[5] = 1;
+                    key[0x5] = 1;
                     break;
                 case sf::Keyboard::E:
-                    key[6] = 1;
+                    key[0x6] = 1;
                     break;
                 case sf::Keyboard::R:
-                    key[7] = 1;
+                    key[0xD] = 1;
                     break;
                 case sf::Keyboard::A:
-                    key[8] = 1;
+                    key[0x7] = 1;
                     break;
                 case sf::Keyboard::S:
-                    key[9] = 1;
+                    key[0x8] = 1;
                     break;
                 case sf::Keyboard::D:
-                    key[10] = 1;
+                    key[0x9] = 1;
                     break;
                 case sf::Keyboard::F:
-                    key[11] = 1;
+                    key[0xE] = 1;
                     break;
                 case sf::Keyboard::Z:
-                    key[12] = 1;
+                    key[0xA] = 1;
                     break;
                 case sf::Keyboard::X:
-                    key[13] = 1;
+                    key[0x0] = 1;
                     break;
                 case sf::Keyboard::C:
-                    key[14] = 1;
+                    key[0xB] = 1;
                     break;
                 case sf::Keyboard::V:
-                    key[15] = 1;
+                    key[0xF] = 1;
+                    break;
+                    
+            }
+        }
+        if (event.type == sf::Event::KeyReleased )
+        {
+            switch ( event.key.code )
+            {
+                case sf::Keyboard::Escape:
+                    running = false;
+                    window.close();
+                    break;
+                case sf::Keyboard::Num1:
+                    key[0x1] = 0;
+                    break;
+                case sf::Keyboard::Num2:
+                    key[0x2] = 0;
+                    break;
+                case sf::Keyboard::Num3:
+                    key[0x3] = 0;
+                    break;
+                case sf::Keyboard::Num4:
+                    key[0xC] = 0;
+                    break;
+                case sf::Keyboard::Q:
+                    key[0x4] = 0;
+                    break;
+                case sf::Keyboard::W:
+                    key[0x5] = 0;
+                    break;
+                case sf::Keyboard::E:
+                    key[0x6] = 0;
+                    break;
+                case sf::Keyboard::R:
+                    key[0xD] = 0;
+                    break;
+                case sf::Keyboard::A:
+                    key[0x7] = 0;
+                    break;
+                case sf::Keyboard::S:
+                    key[0x8] = 0;
+                    break;
+                case sf::Keyboard::D:
+                    key[0x9] = 0;
+                    break;
+                case sf::Keyboard::F:
+                    key[0xE] = 0;
+                    break;
+                case sf::Keyboard::Z:
+                    key[0xA] = 0;
+                    break;
+                case sf::Keyboard::X:
+                    key[0x0] = 0;
+                    break;
+                case sf::Keyboard::C:
+                    key[0xB] = 0;
+                    break;
+                case sf::Keyboard::V:
+                    key[0xF] = 0;
                     break;
                     
             }
