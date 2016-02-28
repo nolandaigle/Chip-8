@@ -65,7 +65,6 @@ void Chip8::Initialize()
     
     //Set up SFML window stuff
     window.create(sf::VideoMode(800, 600), "Chip8 Emu" );
-    window.setFramerateLimit(60);
     
     running = true;
     
@@ -108,14 +107,14 @@ void Chip8::EmulateCycle()
         case 0x0000:
             switch(opcode & 0x000F)
         {
-            case 0x0000: // 0x00E0: Clear the screen
+            case 0x0000: // Clear the screen
                 for(int i = 0; i < 2048; ++i)
                     gfx[i] = 0x0;
                 drawFlag = true;
                 pc += 2;
                 break;
                 
-            case 0x000E: //0x00EE: Return from subroutine
+            case 0x000E: //Return from subroutine
                 --sp;
                 pc = stack[sp];
                 pc += 2;
@@ -128,26 +127,26 @@ void Chip8::EmulateCycle()
             pc = opcode & 0x0FFF;
             break;
             
-        case 0x2000: // 0x2NNN: Calls a subroutine at address NNN
+        case 0x2000: // 2NNN: Calls a subroutine at address NNN
             //Before calling a subroutine, save the current pc address in the stack
             stack[sp] = pc;
             ++sp;
             pc = opcode & 0x0FFF;
             break;
             
-        case 0x3000: // 0x3XNN skips the next instruction if V[X] equals NN
+        case 0x3000: // 3XNN skips the next instruction if V[X] equals NN
             if ( V[(opcode & 0x0F00) >> 8] == (opcode & 0x00FF) )
                 pc += 2;
             pc += 2;;
             break;
             
-        case 0x4000: // 0x4XNN skips the next instruction if V[X] DOES NOT equal NN
+        case 0x4000: // 4XNN skips the next instruction if V[X] DOES NOT equal NN
             if ( V[(opcode & 0x0F00) >> 8] != ( opcode & 0x00FF ) )
                 pc += 2;
             pc += 2;
             break;
             
-        case 0x5000: // 0x5XNN skips the next instruction if V[X] equals V[Y]
+        case 0x5000: // 5XNN skips the next instruction if V[X] equals V[Y]
             if ( V[(opcode & 0x0F00) >> 8] == V[(opcode & 0x00F0) >> 4] )
                 pc += 2;
             pc += 2;
@@ -196,7 +195,7 @@ void Chip8::EmulateCycle()
                 pc += 2;
                 break;
                 
-            case 0x0005: // 0x8XY5: V[Y] is subtracted from V[X]. VF is set to 0 when there's a borrow and 1 when there isn't.
+            case 0x0005: // 0x8XY5 V[Y] is subtracted from V[X]. VF is set to 0 when there's a borrow and 1 when there isn't.
                 if(V[(opcode & 0x00F0) >> 4] > (V[(opcode % 0x0F00) >> 8])) //
                     V[0xF] = 0; //carry flag set to 0 if there is a borrow
                 else
@@ -230,29 +229,29 @@ void Chip8::EmulateCycle()
             
             break;
             
-        case 0x9000: // 0x9XY0 Skips the next instruction if V[X] and V[Y] are not equal
+        case 0x9000: // 9XY0 Skips the next instruction if V[X] and V[Y] are not equal
             if ( V[(opcode & 0x0F00) >> 8] != V[(opcode & 0x00F0) >> 4] )
                 pc += 2;
             pc += 2;
             break;
             
-        case 0xA000: // 0xANNN: Set Index Register to the address NNN
+        case 0xA000: // ANNN: Set Index Register to the address NNN
             I = opcode & 0x0FFF;
             pc += 2;
             break;
             
-        case 0xB000: // 0xBNNN: Jumpts to address NNN plus V[0]
+        case 0xB000: // BNNN: Jumpts to address NNN plus V[0]
             stack[sp] = pc;
             ++sp;
             pc = (opcode & 0x0FFF) + V[0];
             break;
             
-        case 0xC000: // 0xCXNN: Sets V[X] to the result of bitwise & on a random number and NN
+        case 0xC000: // CXNN: Sets V[X] to the result of bitwise & on a random number and NN
             V[(opcode & 0x0F00) >> 8] = ( rand() % 0xFF + 0x00 ) & (opcode & 0x00FF);
             pc += 2;
             break;
             
-        case 0xD000:{ // 0xDXYN: Sprites stored in memory at location in index register (I), 8bits wide. Wraps around the screen. If when drawn, clears a pixel, register VF is set to 1 otherwise it is zero. All drawing is XOR drawing (i.e. it toggles the screen pixels). Sprites are drawn starting at position VX, VY. N is the number of 8bit rows that need to be drawn. If N is greater than 1, second line continues at position VX, VY+1, and so on.
+        case 0xD000:{ // Sprites stored in memory at location in index register (I), 8bits wide. Wraps around the screen. If when drawn, clears a pixel, register VF is set to 1 otherwise it is zero. All drawing is XOR drawing (i.e. it toggles the screen pixels). Sprites are drawn starting at position VX, VY. N is the number of 8bit rows that need to be drawn. If N is greater than 1, second line continues at position VX, VY+1, and so on.
             unsigned short x = V[(opcode & 0x0F00) >> 8]; // Get X value of sprite
             unsigned short y = V[(opcode & 0x00F0) >> 4]; // Get Y value of sprite
             unsigned short height = opcode & 0x000F; // Get height of sprite
@@ -289,7 +288,7 @@ void Chip8::EmulateCycle()
                 pc += 2;
                 break;
                 
-            case 0x0001: // 0xEXA1: Skips the next instruction if the key stored in VX isn't pressed.
+            case 0x0001: // Skips the next instruction if the key stored in VX isn't pressed.
                 if (key[V[(opcode & 0x0F00) >> 8]] == 0)
                     pc += 2;
                 pc += 2;
